@@ -108,6 +108,8 @@ def sfm_pipe(pth_set, width, video_mode=None):
 
     openmvg_incremental(pth_sfm=path_sfm, pth_matches=features, pth_incr=path_incr)
     openmvg_colors(pth_incr=path_incr)
+    openmvs_densification(pth_in=path_incr)
+    
 
 
 ####################################### Aux functions for parallelisation
@@ -132,8 +134,6 @@ def list_extract(lst, max_num):
             ret_lst.append(lst.pop())
 
     return ret_lst
-
-
 ####################################### Many videos sequentially
 
 
@@ -183,7 +183,8 @@ def drain_many_seq(urls, plylst ='',
         control_launch = Process(target=execute_fun_par, args=(sfm_pipe_seq, sets_batch))
         control_launch.start()
         control_launch.join()
-
+        
+        
 
 #################### Aux Functions
 
@@ -245,44 +246,3 @@ def sfm_pipe_par(pth_sets, width, parallel_tasks=4):
         batch_execution = Process(target=execute_fun_par, args=(sfm_pipe, args_sfm))
         batch_execution.start()
         batch_execution.join()
-
-
-#######################################  Many videos in a fully parallel manner
-
-
-def drain_many_par(plylsts=[], vids=[], rate=2, sample=False, frame_force=False, feature_force=False, match_force=False):
-    """Launch parent processes.
-       Execution finishes when all iter0 and subordinary sfm_pipes jobs terminated."""
-
-    # One parent process: all other processes are children
-    parent_process = Process(target=launch_all_par, args=(plylsts, vids, rate, sample, frame_force, feature_force, match_force))
-    parent_process.start()
-    parent_process.join()
-
-
-def launch_all_par(plylsts=[], vids=[], rate=2, sample=False, frame_force=False, feature_force=False, match_force=False):
-    """Spawns as many iter0 as the number of videos in playlists or in the videos list.
-       After an iter0 process finishes, it launches the sfm_pipes in parallel."""
-
-    for plylst in plylsts:
-        for v_id in os.listdir(pth_plylst(plylst)):
-            args = (pth_vid(v_id, plylst), rate, sample, frame_force, feature_force, match_force)
-            Process(target=iter0_sfm_par, args=args).start()
-
-    for v_id in vids:
-        args = (pth_vid(v_id), rate, sample, frame_force, feature_force, match_force)
-        Process(target=iter0_sfm_par, args=(args,)).start()
-
-
-def iter0_sfm_par(args):
-    """Performs iter0() and launch sfm_pipe processes with
-       the generated sets."""
-
-    path_set_dir, width = iter0(*args)
-    pth_sets = [os.path.join(path_set_dir, el) for el in os.listdir(path_set_dir)]
-
-    # start new process
-    for pth_set in pth_sets:
-        args = (pth_set, width)
-        Process(target=sfm_pipe, args=args).start()
-

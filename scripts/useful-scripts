@@ -1,0 +1,5 @@
+
+youtube-dl '$url' -f 'bestvideo' -o "%(upload_date)s-%(title)s-%(id)s"
+cmd = 'ffmpeg -i {} -r {} -f image2 {}/frame%04d.png'.format(path_data,
+                                                                     rate,
+                                                                     path_frames)

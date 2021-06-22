@@ -7,7 +7,7 @@ import json
 import numpy as np
 
 
-PATH_PROJ = '../'
+PATH_PROJ = '/'
 
 
 #######################################  Unixs
@@ -48,15 +48,15 @@ def pth_prj():
 
 
 def pth_vids():
-    """Return path to videos/ folder"""
+    """Return path to /Volumes/drainingyt/ folder"""
 
-    pth = os.path.join(pth_prj(), 'videos')
+    pth = os.path.join(pth_prj(), '/Volumes/drainingyt/')
     remove_ds_store(pth)
     return pth
 
 
 def pth_plylst(name):
-    """Return path to playlist folder in videos folder"""
+    """Return path to playlist folder in /media/descombe/drainingyt folder"""
 
     pth = os.path.join(pth_vids(), name)
     remove_ds_store(pth)
@@ -158,18 +158,18 @@ def gen_items(n_items):
 
 def yt_dl(url, playlist='', format=None, n_items=1):
     """Call youtube-dl to download a video providing the url.
-       By default provides an output template to store all the videos in
+       By default provides an output template to store all the /media/descombe/drainingyt in
        a single directory, name them by id and extension and
        write information in json file"""
        
     opts = dict()
     if playlist:
-        opts['outtmpl'] = '{}/videos/{}/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj(),playlist)
+        opts['outtmpl'] = '/Volumes/drainingyt/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj(),playlist)
         opts['writeinfojson'] = True
         opts['playlist_items'] = gen_items(n_items=n_items)
 
     else:
-        opts['outtmpl'] = '{}/videos/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj())
+        opts['outtmpl'] = '/Volumes/drainingyt/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj())
         opts['writeinfojson'] = True
         opts['noplaylist'] = 'no'
 
@@ -280,7 +280,7 @@ def openmvg_incremental(pth_sfm, pth_matches, pth_incr):
        Auto is a flag to be used in sfm to automatize the execution.
        Generates 3D models: .ply files"""
 
-    cmd = "openMVG_main_IncrementalSfM2 -i {} -m {} -o {} ".format(pth_sfm,
+    cmd = "openMVG_main_IncrementalSfM -i {} -m {} -o {} ".format(pth_sfm,
                                                                    pth_matches,
                                                                    pth_incr)
     os.system(cmd)
@@ -300,6 +300,28 @@ def openmvg_colors(pth_incr):
     else:
         os.renames(old=pth_incr, new='{}_fail'.format(pth_incr))
 
+        
+def openmvs_densification(pth_in):
+    """functions to convert sfm_data to the openMVS format
+    and continue with densification"""
+    
+    path_sfm = os.path.join(pth_in,'sfm_data.bin') # Should not be hardcoded
+    if os.path.isfile(path_sfm):
+        path_omvs = pth_in + "/omvs/"
+        path_dense = pth_in + "/omvs/scene.mvs"
+        cmd = 'openMVG_main_openMVG2openMVS -i {} -d {} -o {}'.format(path_sfm, path_omvs, path_dense)
+
+        os.system(cmd)
+        
+        cmd_dense = 'DensifyPointCloud -i {}'.format(path_dense)
+        os.system(cmd_dense)
+        
+        cmd_clean = 'mv ~/Sources/Draining-Youtube/scripts/*.dmap ~/Sources/Draining-Youtube/scripts/*.cmap ~/Sources/Draining-Youtube/scripts/*.log {}'.format(path_omvs)
+        os.system(cmd_clean)
+        
+    else: 
+        print('Conversion to openMVS and densification failed')
+    
 
 def openmvg_convert_sfm_data_format(pth_in):
     """Call openMVG to convert sfm_data.XXX
@@ -327,24 +349,13 @@ def line_to_tuple(line):
 def extract_matches(path_mtchs):
     """function to read the matches.f.txt file to extract the matches.
        Return: match_list"""
-
-    # Open and read matches file
-    f = open(path_mtchs, mode='r')
-    string_file = f.read()
-
-    # Convert to list of lines
-    lines = string_file.split(sep='\n')
-
-    nbr_lines = len(lines)
-    match_list = list()
-    reach_end = False
-    i = 0
-
-    while not reach_end:
-        match_list.append(line_to_tuple(lines[i]))
-        i = i + 2 + int(lines[i + 1])
-        if i + 1 == nbr_lines: reach_end = True
-
+    
+    path_mtchs_bin = path_mtchs.replace('.txt','.bin')
+    os.path.exists(path_mtchs_bin)
+    cmd = "/home/descombe/Sources/omvg-match/bin/omvg-match {} > {}".format(path_mtchs_bin, path_mtchs)
+    os.system(cmd)
+    
+    match_list = np.loadtxt(path_mtchs, dtype=int)    
     return match_list
 
 

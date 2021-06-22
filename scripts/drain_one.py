@@ -7,14 +7,17 @@ from master_functions import drain_one
 
 
 
-# Link of the videos to be downloaded and processed
+# Link of the scratch to be downloaded and processed
 # https://www.youtube.com/watch?v=LnyKeqdzQao is test
 # video of a drain flight over the city of Lausanne.
-URL = 'https://www.youtube.com/watch?v=LnyKeqdzQao'
+#URL = 'https://www.youtube.com/watch?v=JFwqhuf4tyE' 303
+#URL = 'https://www.youtube.com/watch?v=AhYBDeW9CKE' 303
+#URL = 'https://www.youtube.com/watch?v=l18iH5UKJz8' 271
+#URL = 'https://www.youtube.com/watch?v=i9QGAEG5y4g' 137
+URL = sys.argv[1]
 
-
-# Name of the playlist folder in videos/ containing the video directories
-PLAYLIST = 'test_video'
+# Name of the playlist folder in scratch/ containing the video directories
+PLAYLIST = ''
 
 # Format for download
 # 244          webm       854x480    	 480p
@@ -22,13 +25,14 @@ PLAYLIST = 'test_video'
 # 248          webm       1920x1080      1080p
 # 271          webm       2560x1440      1440p
 # 313          webm       3840x2160      2160p
-DL_FORMAT = '248'
-
+#DL_FORMAT = '315'
+#DL_FORMAT = '271'
+DL_FORMAT = 'bestvideo'
 # If True extract frames from to 00:00 to 05:00 (time in video)
-SAMPLE = True
+SAMPLE = False
 
 # Rate of frame extraction
-RATE = 2
+RATE = sys.argv[2]
 
 # Number of tasks executed in paralell
 TASKS_IN_PAR = int(cpu_count()/2)

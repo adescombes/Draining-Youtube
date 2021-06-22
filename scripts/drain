@@ -1,0 +1,5 @@
+#!/bin/bash
+python drain_one.py https://www.youtube.com/watch?v=AhYBDeW9CKE 303
+python drain_one.py https://www.youtube.com/watch?v=JFwqhuf4tyE 303
+python drain_one.py https://www.youtube.com/watch?v=l18iH5UKJz8 271
+python drain_one.py https://www.youtube.com/watch?v=i9QGAEG5y4g 137

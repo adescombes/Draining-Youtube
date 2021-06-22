@@ -8,11 +8,11 @@ from master_functions import drain_many_seq
 
 
 
-# Links of the videos to be downloaded and processed
+# Links of the scratch to be downloaded and processed
 URLS = ['https://www.youtube.com/watch?v=9LgeDcu-oho',
         'https://www.youtube.com/watch?v=LnyKeqdzQao']
 
-# Name of the playlist folder in videos/ containing the video directories
+# Name of the playlist folder in scratch/ containing the video directories
 PLAYLIST = 'multiple_downloads'
 
 # Format for download
