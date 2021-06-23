@@ -138,7 +138,7 @@ def list_extract(lst, max_num):
 
 
 def drain_many_seq(urls, plylst ='',
-                   dl_format='135', rate=1,
+                   dl_format='bestvideo', rate=1,
                    parallel_tasks=4,
                    sample=False, frame_force=False,
                    feature_force=False,
@@ -210,7 +210,7 @@ def sfm_pipe_seq(pth_sets, width):
 
 
 def drain_one(url, playlist='', 
-              dl_format=248, rate=2, parallel_tasks=4,
+              dl_format='bestvideo', rate=2, parallel_tasks=4,
               sample=False, frame_force=False,
               feature_force=False,
               match_force=False, video_mode=30):

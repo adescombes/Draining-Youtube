@@ -48,7 +48,7 @@ def pth_prj():
 
 
 def pth_vids():
-    """Return path to /Volumes/drainingyt/ folder"""
+    """Return path to /media/descombe/drainingyt/ folder"""
 
     pth = os.path.join(pth_prj(), '/Volumes/drainingyt/')
     remove_ds_store(pth)
@@ -313,7 +313,7 @@ def openmvs_densification(pth_in):
 
         os.system(cmd)
         
-        cmd_dense = 'DensifyPointCloud -i {}'.format(path_dense)
+        cmd_dense = '/Users/descombe/Sources/openMVS_build/bin/DensifyPointCloud -i {}'.format(path_dense)
         os.system(cmd_dense)
         
         cmd_clean = 'mv ~/Sources/Draining-Youtube/scripts/*.dmap ~/Sources/Draining-Youtube/scripts/*.cmap ~/Sources/Draining-Youtube/scripts/*.log {}'.format(path_omvs)
@@ -352,7 +352,7 @@ def extract_matches(path_mtchs):
     
     path_mtchs_bin = path_mtchs.replace('.txt','.bin')
     os.path.exists(path_mtchs_bin)
-    cmd = "/home/descombe/Sources/omvg-match/bin/omvg-match {} > {}".format(path_mtchs_bin, path_mtchs)
+    cmd = "/Users/descombe/Sources/omvg-match/bin/omvg-match {} > {}".format(path_mtchs_bin, path_mtchs)
     os.system(cmd)
     
     match_list = np.loadtxt(path_mtchs, dtype=int)    
