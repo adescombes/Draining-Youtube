@@ -313,11 +313,9 @@ def openmvs_densification(pth_in):
 
         os.system(cmd)
         
-        cmd_dense = '/Users/descombe/Sources/openMVS_build/bin/DensifyPointCloud -i {}'.format(path_dense)
+        cmd_dense = '/Users/descombe/Sources/openMVS_build/bin/DensifyPointCloud -i {} -w {}'.format(path_dense, path_omvs)
         os.system(cmd_dense)
         
-        cmd_clean = 'mv ~/Sources/Draining-Youtube/scripts/*.dmap ~/Sources/Draining-Youtube/scripts/*.cmap ~/Sources/Draining-Youtube/scripts/*.log {}'.format(path_omvs)
-        os.system(cmd_clean)
         
     else: 
         print('Conversion to openMVS and densification failed')
