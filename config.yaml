@@ -1,0 +1,7 @@
+lib:
+  openMVG: /Users/descombe/Sources/openMVG_Build/Darwin-x86_64-RELEASE/
+  openMVS: /Users/descombe/Sources/openMVS_build/bin/
+  omvg_match: /Users/descombe/Sources/omvg-match/bin/
+
+filepaths:
+  drainingyt: /Volumes/drainingyt/

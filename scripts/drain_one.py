@@ -29,10 +29,10 @@ PLAYLIST = ''
 #DL_FORMAT = '271'
 DL_FORMAT = 'bestvideo'
 # If True extract frames from to 00:00 to 05:00 (time in video)
-SAMPLE = False
+SAMPLE = sys.argv[2]
 
 # Rate of frame extraction
-RATE = sys.argv[2]
+RATE = sys.argv[3]
 
 # Number of tasks executed in paralell
 TASKS_IN_PAR = int(cpu_count()/2)

@@ -5,9 +5,22 @@ import shutil
 import time
 import json
 import numpy as np
+import yaml
 
 
 PATH_PROJ = '/'
+
+with open("../config.yaml", "r") as ymlfile:
+    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+PATH_OMVG = cfg["lib"]["openMVG"]
+PATH_OMVS = cfg["lib"]["openMVS"]
+PATH_MATCH = cfg["lib"]["omvg_match"]
+PATH_DRYT = cfg["filepaths"]["drainingyt"]
+print(PATH_OMVG)
+print(PATH_OMVS)
+print(PATH_MATCH)
+print(PATH_DRYT)
 
 
 #######################################  Unixs
@@ -39,26 +52,10 @@ def make_dir(pth_dir):
 
 #######################################  Path functions
 
-
-def pth_prj():
-    """Provides path to the project folder.
-       By default the project folder is above the
-       /source folder that contains this file: PATH_PROJ set to '..' """
-    return PATH_PROJ
-
-
-def pth_vids():
-    """Return path to /media/descombe/drainingyt/ folder"""
-
-    pth = os.path.join(pth_prj(), '/Volumes/drainingyt/')
-    remove_ds_store(pth)
-    return pth
-
-
 def pth_plylst(name):
-    """Return path to playlist folder in /media/descombe/drainingyt folder"""
+    """Return path to playlist folder in drainingyt folder (cf config.yaml)"""
 
-    pth = os.path.join(pth_vids(), name)
+    pth = os.path.join(PATH_DRYT, name)
     remove_ds_store(pth)
     return(pth)
 
@@ -66,7 +63,7 @@ def pth_plylst(name):
 def pth_vid(v_id, plylst=''):
     """Returns full path to video dir assuming call from main folder"""
     if not plylst:
-        pth = os.path.join(pth_vids(), v_id)
+        pth = os.path.join(PATH_DRYT, v_id)
         remove_ds_store(pth)
         return (pth)
 
@@ -123,7 +120,7 @@ def get_plylst_id(path_vid):
     """Get v_id and plylst ba parsinh vid path.
     Returns v_id, plylst"""
 
-    split = path_vid.split(sep=pth_vids())[1].split('/')
+    split = path_vid.split(sep=PATH_DRYT)[1].split('/')
     if len(split) == 3:
 
         plylst = split[1]
@@ -164,12 +161,12 @@ def yt_dl(url, playlist='', format=None, n_items=1):
        
     opts = dict()
     if playlist:
-        opts['outtmpl'] = '/Volumes/drainingyt/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj(),playlist)
+        opts['outtmpl'] = '{}/{}/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(PATH_DRYT, playlist)
         opts['writeinfojson'] = True
         opts['playlist_items'] = gen_items(n_items=n_items)
 
     else:
-        opts['outtmpl'] = '/Volumes/drainingyt/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(pth_prj())
+        opts['outtmpl'] = '{}/%(id)s/data/%(id)s_%(resolution)s.%(ext)s'.format(PATH_DRYT)
         opts['writeinfojson'] = True
         opts['noplaylist'] = 'no'
 
@@ -201,7 +198,7 @@ def get_dic_info(v_id, plylst):
 
 
 def xtrct_frames(v_id, plylst='',
-                 sample=False, rate=2, start=0, stop=300):
+                 sample=True, rate=2, start=0, stop=300):
     """ Creates a directory that contains the frames the extracted
         frames and extracts the frames calling avconv. 
         If sample is True, the the function will extract frames 
@@ -246,7 +243,7 @@ def openmvg_list(width, pth_frms, pth_out):
     """Calls openMVG for to perform the image listing
        Generates sfm_data.json file"""
 
-    cmd = "openMVG_main_SfMInit_ImageListing -i {} -o {} -f {}".format(pth_frms, pth_out, width)
+    cmd = "{}/openMVG_main_SfMInit_ImageListing -i {} -o {} -f {}".format(PATH_OMVG, pth_frms, pth_out, width)
     os.system(cmd)
 
 
@@ -254,7 +251,7 @@ def openmvg_features(pth_sfm, pth_features, force=False):
     """Calls openMVG to do compute features
        Generates .desc and .feat in the dir given by path features for all the frames"""
 
-    cmd = 'openMVG_main_ComputeFeatures -i {} -o {}'.format(pth_sfm, pth_features)
+    cmd = '{}/openMVG_main_ComputeFeatures -i {} -p HIGH -o {}'.format(PATH_OMVG, pth_sfm, pth_features)
     if force: cmd = cmd + " -f 1"
     os.system(cmd)
 
@@ -263,11 +260,11 @@ def openmvg_matches(pth_sfm, pth_matches, video_mode=None, force=False):
     """Calls openMVG to do compute matches
        Generates various files: .bin , putative_matches ... """
 
-    cmd = "openMVG_main_ComputeMatches -i {} -o {} -v {}".format(pth_sfm,
+    cmd = "{}/openMVG_main_ComputeMatches -i {} -o {} -v {}".format(PATH_OMVG, pth_sfm,
                                                                  pth_matches,
                                                                  video_mode)
     if not video_mode:
-        cmd = 'openMVG_main_ComputeMatches -i {} -o {}'.format(pth_sfm,
+        cmd = '{}/openMVG_main_ComputeMatches -i {} -o {}'.format(PATH_OMVG, pth_sfm,
                                                                pth_matches)
 
     if force:
@@ -280,14 +277,14 @@ def openmvg_incremental(pth_sfm, pth_matches, pth_incr):
        Auto is a flag to be used in sfm to automatize the execution.
        Generates 3D models: .ply files"""
 
-    cmd = "openMVG_main_IncrementalSfM -i {} -m {} -o {} ".format(pth_sfm,
+    cmd = "{}/openMVG_main_IncrementalSfM -i {} -m {} -o {} ".format(PATH_OMVG, pth_sfm,
                                                                    pth_matches,
                                                                    pth_incr)
     os.system(cmd)
 
 
 def openmvg_colors(pth_incr):
-    """Functions to call openMVG_main_ComputeSfM_DataColor to add
+    """Functions to call PATH_OMVG/openMVG_main_ComputeSfM_DataColor to add
        the colors on the points of the 3D model.
        If incremental step failed (no sfm_data_color.ply file),
        renames the folder incremental_fail"""
@@ -295,7 +292,7 @@ def openmvg_colors(pth_incr):
     path_sfm = os.path.join(pth_incr,'sfm_data.bin') # Should not be hardcoded
     if os.path.isfile(path_sfm):
         path_ply = os.path.join(pth_incr, 'sfm_data_color.ply')
-        cmd = 'openMVG_main_ComputeSfM_DataColor -i {} -o {}'.format(path_sfm, path_ply)
+        cmd = '{}/openMVG_main_ComputeSfM_DataColor -i {} -o {}'.format(PATH_OMVG, path_sfm, path_ply)
         os.system(cmd)
     else:
         os.renames(old=pth_incr, new='{}_fail'.format(pth_incr))
@@ -308,14 +305,22 @@ def openmvs_densification(pth_in):
     path_sfm = os.path.join(pth_in,'sfm_data.bin') # Should not be hardcoded
     if os.path.isfile(path_sfm):
         path_omvs = pth_in + "/omvs/"
-        path_dense = pth_in + "/omvs/scene.mvs"
-        cmd = 'openMVG_main_openMVG2openMVS -i {} -d {} -o {}'.format(path_sfm, path_omvs, path_dense)
-
+        path_dense = pth_in + "/omvs/sfm_data.mvs"
+        path_mesh = pth_in + "/omvs/sfm_data_dense.mvs"
+        path_texture = pth_in + "/omvs/sfm_data_dense_mesh.mvs"
+        
+        cmd = '{}/openMVG_main_openMVG2openMVS -i {} -d {} -o {}'.format(PATH_OMVG, path_sfm, path_omvs, path_dense)
         os.system(cmd)
         
-        cmd_dense = '/Users/descombe/Sources/openMVS_build/bin/DensifyPointCloud -i {} -w {}'.format(path_dense, path_omvs)
+        cmd_dense = '{}/DensifyPointCloud -i {} -w {}'.format(PATH_OMVS, path_dense, path_omvs)
         os.system(cmd_dense)
-        
+
+        cmd_mesh = '{}/ReconstructMesh -i {} -w {}'.format(PATH_OMVS, path_mesh, path_omvs)
+        os.system(cmd_mesh)
+
+        cmd_texture = '{}/TextureMesh -i {} -w {}'.format(PATH_OMVS, path_texture, path_omvs)
+        os.system(cmd_texture)
+
         
     else: 
         print('Conversion to openMVS and densification failed')
@@ -329,7 +334,7 @@ def openmvg_convert_sfm_data_format(pth_in):
     pth_out = pth_in.split('.')[0] + '.json'
 
     if not os.path.isfile(pth_out):
-        cmd = 'openMVG_main_ConvertSfM_DataFormat -i {} -o {}'.format(pth_in, pth_out)
+        cmd = '{}/openMVG_main_ConvertSfM_DataFormat -i {} -o {}'.format(PATH_OMVG, pth_in, pth_out)
         os.system(cmd)
     return pth_out
 
@@ -350,7 +355,7 @@ def extract_matches(path_mtchs):
     
     path_mtchs_bin = path_mtchs.replace('.txt','.bin')
     os.path.exists(path_mtchs_bin)
-    cmd = "/Users/descombe/Sources/omvg-match/bin/omvg-match {} > {}".format(path_mtchs_bin, path_mtchs)
+    cmd = "{}/omvg-match {} > {}".format(PATH_MATCH, path_mtchs_bin, path_mtchs)
     os.system(cmd)
     
     match_list = np.loadtxt(path_mtchs, dtype=int)    
